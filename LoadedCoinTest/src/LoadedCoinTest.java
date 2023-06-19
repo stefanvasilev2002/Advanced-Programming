@@ -54,7 +54,7 @@ class Coin {
 }
 
 class LoadedCoin extends Coin {
-    private int probability;
+    private final int probability;
 
     public LoadedCoin(int probability) {
         this.probability = probability;

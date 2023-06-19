@@ -10,14 +10,14 @@ public class GenericFractionTest {
         int n3 = scanner.nextInt();
         int d3 = scanner.nextInt();
         try {
-            GenericFraction<Double, Double> gfDouble = new GenericFraction<Double, Double>(n1, d1);
-            GenericFraction<Float, Float> gfFloat = new GenericFraction<Float, Float>(n2, d2);
-            GenericFraction<Integer, Integer> gfInt = new GenericFraction<Integer, Integer>(n3, d3);
+            GenericFraction<Double, Double> gfDouble = new GenericFraction<>(n1, d1);
+            GenericFraction<Float, Float> gfFloat = new GenericFraction<>(n2, d2);
+            GenericFraction<Integer, Integer> gfInt = new GenericFraction<>(n3, d3);
             System.out.printf("%.2f\n", gfDouble.toDouble());
             System.out.println(gfDouble.add(gfFloat));
             System.out.println(gfInt.add(gfFloat));
             System.out.println(gfDouble.add(gfInt));
-            gfInt = new GenericFraction<Integer, Integer>(n3, 0);
+            new GenericFraction<>(n3, 0);
         } catch(ZeroDenominatorException e) {
             System.out.println(e.getMessage());
         }
@@ -27,44 +27,36 @@ public class GenericFractionTest {
 
 }
 class GenericFraction<T extends Number, U extends Number>{
-    private T numerator;
-    private U denominator;
-
+    T numerator;
+    U denominator;
     public GenericFraction(T numerator, U denominator) throws ZeroDenominatorException {
-        this.numerator = numerator;
-        if(denominator.equals(0)){
+        if(denominator.intValue() == 0){
             throw new ZeroDenominatorException();
         }
         this.denominator = denominator;
+        this.numerator = numerator;
     }
     public GenericFraction<Double, Double> add(GenericFraction<? extends Number, ? extends Number> gf) throws ZeroDenominatorException {
-        try {
-            return new GenericFraction<Double, Double>(
-                    gf.denominator.doubleValue() * this.numerator.doubleValue() +
-                            this.denominator.doubleValue() * gf.numerator.doubleValue(),
-                    gf.denominator.doubleValue() * this.denominator.doubleValue());
-
-        } catch (ZeroDenominatorException e){
-            return null;
-        }
+        return new GenericFraction<>(numerator.doubleValue() * gf.denominator.doubleValue() + gf.numerator.doubleValue() * denominator.doubleValue(), denominator.doubleValue() * gf.denominator.doubleValue());
     }
     public double toDouble(){
-        return numerator.doubleValue()/denominator.doubleValue();
+        return numerator.doubleValue() / denominator.doubleValue();
     }
-    public String toString(){
-        return String.format("%.2f / %.2f",
-                numerator.doubleValue()/gcd(numerator.intValue(), denominator.intValue()),
-                denominator.doubleValue()/gcd(numerator.intValue(), denominator.intValue()));
+
+    @Override
+    public String toString() {
+        int gcd = findGCD(numerator.intValue(), denominator.intValue());
+        return String.format("%.2f / %.2f", (double)numerator.intValue() / gcd, (double)denominator.intValue() / gcd);
     }
-    public int gcd(int a, int b){
-        if(b==0){
-            return a;
+    public int findGCD(int num1, int num2) {
+        if (num2 == 0) {
+            return num1;
         }
-        return gcd(b, a%b);
+        return findGCD(num2, num1 % num2);
     }
 }
 class ZeroDenominatorException extends Exception{
-    public String getMessage() {
-        return "Denominator cannot be zero";
+    public ZeroDenominatorException() {
+        super("Denominator cannot be zero");
     }
 }

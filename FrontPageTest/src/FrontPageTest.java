@@ -1,5 +1,5 @@
-
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FrontPageTest {
     public static void main(String[] args) {
@@ -59,176 +59,128 @@ public class FrontPageTest {
         }
     }
 }
-class Category{
-    private String name;
+class Category {
+    String category;
 
-    public Category(String name) {
-        this.name = name;
+    public Category(String category) {
+        this.category = category;
     }
 
-    public String getName() {
-        return name;
-    }
-}
-
-class NewsItem{
-    private String title;
-    private Date publishingDate;
-    private Category category;
-
-    public NewsItem(Category category){
-        this.category=category;
-    }
-
-    public NewsItem(Category category, String title, Date date) {
-        this.category=category;
-        this.title=title;
-        this.publishingDate=date;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Date getPublishingDate() {
-        return publishingDate;
-    }
-
-    public Category getCategory() {
+    public String getCategory() {
         return category;
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        Category category1 = (Category) o;
 
-    public boolean compareTo(NewsItem o) {
-        return category.equals(o.getCategory());
+        return Comparator.comparing(Category::getCategory).compare(this, category1) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return category != null ? category.hashCode() : 0;
     }
 }
-class TextNewsItem extends NewsItem{
-    private String text;
+abstract class NewsItem {
+    String title;
+    Date date;
+    Category category;
 
-    public TextNewsItem(String title, Date date, Category category, String text) {
-        super(category, title, date);
-        this.text=text;
+    public NewsItem(String title, Date date, Category category) {
+        this.title = title;
+        this.date = date;
+        this.category = category;
     }
 
-    public String getTeaser(){
-        StringBuilder sb=new StringBuilder();
-        sb.append(getTitle());
-        sb.append("\n");
-        Calendar cal=Calendar.getInstance();
-        Date a=cal.getTime();
-        long minutes=Math.abs(getPublishingDate().getTime()-a.getTime());
-        minutes=minutes/1000/60;
-        sb.append(minutes);
-        sb.append("\n");
-        if(text.length()<=80){
-            sb.append(text);
-            sb.append("\n");
+    public String getCategory() {
+        return category.getCategory();
+    }
+    public abstract String  getTeaser();
+}
+class TextNewsItem extends NewsItem{
+    String text;
+    public TextNewsItem(String title, Date date, Category category, String text) {
+        super(title, date, category);
+        this.text = text;
+    }
+
+    @Override
+    public String getTeaser() {
+        Date tmp = new Date();
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s\n", title));
+        sb.append(String.format("%d\n", (tmp.getTime() - date.getTime()) / 1000 / 60));
+        if (text.length() > 80){
+            sb.append(text.substring(0, 80));
         }
         else {
-            for(int i=0; i<80; i++){
-                sb.append(text.charAt(i));
-            }
-            sb.append("\n");
+            sb.append(text);
         }
+        sb.append("\n");
         return sb.toString();
     }
 }
 class MediaNewsItem extends NewsItem{
-    private String url;
-    private int numberOfViews;
-
+    String url;
+    int views;
 
     public MediaNewsItem(String title, Date date, Category category, String url, int views) {
-        super(category, title, date);
-        this.numberOfViews=views;
-        this.url=url;
+        super(title, date, category);
+        this.url = url;
+        this.views = views;
     }
 
-    public String getTeaser(){
-        StringBuilder sb=new StringBuilder();
-        sb.append(getTitle());
-        sb.append("\n");
-        Calendar cal=Calendar.getInstance();
-        Date a=cal.getTime();
-        long minutes=Math.abs(getPublishingDate().getTime()-a.getTime());
-        minutes=minutes/1000/60;
-        sb.append(minutes);
-        sb.append("\n");
-        sb.append(url);
-        sb.append("\n");
-        sb.append(numberOfViews);
-        sb.append("\n");
+    @Override
+    public String getTeaser() {
+        Date tmp = new Date();
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s\n", title));
+        sb.append(String.format("%d\n", (int)(tmp.getTime() - date.getTime()) / 1000 / 60));
+        sb.append(String.format("%s\n", url));
+        sb.append(String.format("%d\n", views));
         return sb.toString();
     }
 }
-class FrontPage{
-    List<NewsItem> items;
-    Category[]categories;
-
-    public FrontPage(Category[] categories) {
-        this.categories = categories;
-        items=new ArrayList<NewsItem>();
+class FrontPage {
+    List<NewsItem> news;
+    List<Category> categories;
+    public FrontPage(Category[] categories){
+        news = new ArrayList<>();
+        this.categories = Arrays.stream(categories).collect(Collectors.toList());
     }
     public void addNewsItem(NewsItem newsItem){
-       items.add(newsItem);
-       //todo if(checkDescription(newsItem.getCategory()));
+        news.add(newsItem);
     }
     public List<NewsItem> listByCategory(Category category){
-        NewsItem def=new NewsItem(category);
-        List<NewsItem> sameCategory=new ArrayList<NewsItem>();
-        for(int i=0; i<items.size(); i++){
-            if(def.getCategory().equals(items.get(i).getCategory())){
-                sameCategory.add(items.get(i));
-            }
-        }
-        return sameCategory;
+        return news
+                .stream()
+                .filter(x-> Objects.equals(x.getCategory(), category.getCategory()))
+                .collect(Collectors.toList());
     }
     public List<NewsItem> listByCategoryName(String category) throws CategoryNotFoundException {
-        int counter=0;
-        boolean cat=false;
-        List<NewsItem> filtered=new ArrayList<NewsItem>();
-        for(int i=0; i<items.size(); i++){
-            if(Objects.equals(category, items.get(i).getCategory().getName())){
-                counter++;
-                filtered.add(items.get(i));
-            }
-        }
-        for(int i=0; i<categories.length; i++){
-            if(Objects.equals(category, categories[i].getName()) ){
-                cat=true;
-            }
-        }
-        if(counter>0 || cat){
-            return filtered;
-        }
-        else {
+        Category c = new Category(category);
+        if (!categories.contains(c)){
             throw new CategoryNotFoundException(category);
         }
+        return news
+                .stream()
+                .filter(x-> Objects.equals(x.getCategory(), c.getCategory()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public String toString() {
-        StringBuilder sb=new StringBuilder();
-        for(int i=0; i<items.size(); i++){
-            if(items.get(i) instanceof MediaNewsItem){
-                MediaNewsItem temp=(MediaNewsItem)items.get(i);
-                sb.append(temp.getTeaser());
-            }
-            else {
-                TextNewsItem temp=(TextNewsItem)items.get(i);
-                sb.append(temp.getTeaser());
-            }
+        StringBuilder sb = new StringBuilder();
+        for (NewsItem n : news){
+            sb.append(n.getTeaser());
         }
         return sb.toString();
     }
 }
-class CategoryNotFoundException extends Throwable {
-    String category;
-    public CategoryNotFoundException(String category) {
-        this.category=category;
-    }
+class CategoryNotFoundException extends Exception{
 
-    public String getMessage() {
-        return String.format("Category %s was not found", category);
+    public CategoryNotFoundException(String category) {
+        super(String.format("Category %s was not found", category));
     }
 }

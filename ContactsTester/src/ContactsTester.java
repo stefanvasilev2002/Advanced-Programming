@@ -1,218 +1,8 @@
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
-
-enum Operator{VIP, ONE, TMOBILE};
-abstract class Contact{
-    private String date;
-
-    public Contact(String date) {
-        this.date = date;
-    }
-    public boolean isNewerThan(Contact c){
-        return date.compareTo(c.date)>0;
-    }
-    public abstract String getType();
-    @Override
-    public abstract String toString();
-}
-
-class EmailContact extends Contact{
-    private String email;
-
-    public EmailContact(String date, String email) {
-        super(date);
-        this.email = email;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String getType() {
-        return "Email";
-    }
-    @Override
-    public String toString() {
-        return "\"" + email + '\"';
-    }
-}
-
-class PhoneContact extends Contact{
-    private String phone;
-    private Operator operator;
-
-    public PhoneContact(String date, String phone) {
-        super(date);
-        this.phone = phone;
-        this.operator =Operator.VIP;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public Operator getOperator()
-    {
-        String pocetok = phone.substring(0, 3);
-        switch (pocetok){
-            case "070": return Operator.TMOBILE;
-            case "071": return Operator.TMOBILE;
-            case "072": return Operator.TMOBILE;
-            case "075": return Operator.ONE;
-            case "076" : return Operator.ONE;
-            case "077" : return Operator.VIP;
-            case "078" : return Operator.VIP;
-            default: return null;
-        }
-    }
-    @Override
-    public String getType() {
-        return "Phone";
-    }
-    @Override
-    public String toString() {
-        return "\"" + phone + '\"';
-    }
-}
-
-class Student {
-    private String firstName;
-    private String lastName;
-    private String city;
-    private int age;
-    private long index;
-    private Contact[] contacts;
-
-    public Student(String firstName, String lastName, String city, int age, long index) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.city = city;
-        this.age = age;
-        this.index = index;
-        contacts = new Contact[0];
-    }
-
-    public void addEmailContact(String date, String email) {
-        ArrayList<Contact> contactsList = new ArrayList<Contact>(Arrays.asList(contacts));
-        contactsList.add(new EmailContact(date, email));
-        contacts = contactsList.toArray(contacts);
-    }
-
-    public void addPhoneContact(String date, String phone) {
-        ArrayList<Contact> contactsList = new ArrayList<Contact>(Arrays.asList(contacts));
-        contactsList.add(new PhoneContact(date, phone));
-        contacts = contactsList.toArray(contacts);
-    }
-
-    public Contact[] getEmailContacts()
-    {
-        return Arrays.stream(contacts).filter(contact -> contact.getType().equals("Email")).toArray(Contact[]::new);
-    }
-
-    public Contact[] getPhoneContacts()
-    {
-        return Arrays.stream(contacts).filter(contact -> contact.getType().equals("Phone")).toArray(Contact[]::new);
-    }
-
-    public String getFullName() {
-        return (firstName.toUpperCase()+" "+lastName.toUpperCase());
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public long getIndex() {
-        return index;
-    }
-    public Contact getLatestContact(){
-        Contact latest=contacts[0];
-        for(int i=1; i< contacts.length; i++){
-            if(contacts[i].isNewerThan(latest)){
-                latest=contacts[i];
-
-            }
-        }
-        return latest;
-    }
-    public int numberOfContacts() {
-        return contacts.length;
-    }
-    @Override
-    public String toString() {
-        return "{" +
-                "\"ime\":\"" + firstName + '\"' +
-                ", \"prezime\":\"" + lastName + '\"' +
-                ", \"vozrast\":" + age +
-                ", \"grad\":\"" + city + '\"' +
-                ", \"indeks\":" + index +
-                ", \"telefonskiKontakti\":" + Arrays.toString(getPhoneContacts()) +
-                ", \"emailKontakti\":" + Arrays.toString(getEmailContacts()) +
-                '}';
-    }
-}
-
-class Faculty{
-    private String name;
-    private Student[]students;
-
-    public Faculty(String name, Student[] students) {
-        this.name = name;
-        this.students = students;
-    }
-    public int countStudentsFromCity(String cityName){
-        int counter=0;
-        for(int i=0; i<students.length; i++){
-            if(students[i].getCity().compareTo(cityName)==0){
-                counter++;
-            }
-        }
-        return counter;
-    }
-    public Student getStudent(long index){
-        int i;
-        for(i=0; i<students.length; i++){
-            if(students[i].getIndex()==index){
-                break;
-            }
-        }
-        return students[i];
-    }
-    public double getAverageNumberOfContacts(){
-        double globalSum=0;
-        for(int i=0; i<students.length; i++){
-            globalSum+=students[i].numberOfContacts();
-        }
-        return globalSum/students.length;
-    }
-    public Student getStudentWithMostContacts(){
-        int mostStudent=0;
-        for(int i=0; i<students.length; i++){
-            if(students[i].numberOfContacts()>students[mostStudent].numberOfContacts()){
-                mostStudent=i;
-            }
-            else if(students[i].numberOfContacts()==students[mostStudent].numberOfContacts()){
-                if(students[i].getIndex()>students[mostStudent].getIndex()){
-                    mostStudent=i;
-                }
-            }
-        }
-        return students[mostStudent];
-    }
-    @Override
-    public String toString() {
-        return "{" +
-                "\"fakultet\":\"" + name + '\"' +
-                ", \"studenti\":" + Arrays.toString(students) +
-                "}";
-    }
-}
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ContactsTester {
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -351,5 +141,216 @@ public class ContactsTester {
         }
 
         scanner.close();
+    }
+}
+abstract class Contact{
+    String date;
+    String type;
+    public Contact(String date){
+        this.date = date;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public boolean isNewerThan(Contact c){
+        return Comparator.comparing(Contact::getDate).compare(this, c) > 0;
+    }
+    public abstract String getType();
+
+}
+class EmailContact extends Contact{
+    String email;
+
+    public EmailContact(String date, String email) {
+        super(date);
+        this.email = email;
+        this.type = "Email";
+    }
+    public String getEmail() {
+        return email;
+    }
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return email;
+    }
+}
+enum Operator { VIP, ONE, TMOBILE }
+class PhoneContact extends Contact{
+    String phone;
+    Operator operator;
+
+    public PhoneContact(String date, String phone) {
+        super(date);
+        this.phone = phone;
+        if (phone.charAt(2) == '0' || phone.charAt(2) == '1' || phone.charAt(2) == '2'){
+            this.operator = Operator.TMOBILE;
+        }
+        else if(phone.charAt(2) == '5' || phone.charAt(2) == '6'){
+            this.operator = Operator.ONE;
+        }
+        else {
+            this.operator = Operator.VIP;
+        }
+        this.type = "Phone";
+    }
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+    @Override
+    public String toString() {
+        return String.format("%s (%s)", phone, operator);
+    }
+}
+class Student{
+    String firstName;
+    String lastName;
+    String city;
+    int age;
+    long index;
+    List<Contact> contacts;
+
+    public Student(String firstName, String lastName, String city, int age, long index) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.city = city;
+        this.age = age;
+        this.index = index;
+        this.contacts = new ArrayList<>();
+    }
+    public void addEmailContact(String date, String email){
+        contacts.add(new EmailContact(date, email));
+    }
+    public void addPhoneContact(String date, String phone){
+        contacts.add(new PhoneContact(date, phone));
+    }
+    public Contact[] getEmailContacts(){
+        return contacts
+                .stream()
+                .filter(x-> Objects.equals(x.getType(), "Email"))
+                .toArray(Contact[]::new);
+    }
+    public Contact[] getPhoneContacts(){
+        return contacts
+                .stream()
+                .filter(x-> Objects.equals(x.getType(), "Phone"))
+                .toArray(Contact[]::new);
+    }
+
+    public String getFullName() {
+        return String.format("%s %s", firstName, lastName);
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public long getIndex() {
+        return index;
+    }
+    public Contact getLatestContact(){
+        List<Contact> sorted = contacts.stream()
+                .sorted(Comparator
+                        .comparing(Contact::getDate).reversed())
+                .collect(Collectors.toList());
+        return sorted.get(0);
+    }
+    public int getNumContacts(){
+        return getEmailContacts().length + getPhoneContacts().length;
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"ime\":\"" + firstName + "\", " +
+                "\"prezime\":\"" + lastName + "\", " +
+                "\"vozrast\":" + age + ", " +
+                "\"grad\":\"" + city + "\", " +
+                "\"indeks\":" + index + ", " +
+                "\"telefonskiKontakti\":" + "[");
+                int i = 0;
+                for (Contact c : getPhoneContacts()){
+                    PhoneContact tmp = (PhoneContact)c;
+                    sb.append("\"" + tmp.phone + "\", ");
+                    i++;
+                }
+                if (i != 0){
+                    sb = new StringBuilder(sb.substring(0, sb.length() - 2));
+                }
+                sb.append("], ");
+
+                sb.append("\"emailKontakti\":" + "[");
+                i = 0;
+                for (Contact c : getEmailContacts()){
+                    EmailContact tmp = (EmailContact) c;
+                    sb.append("\"" + tmp.email + "\", ");
+                    i++;
+                }
+                if (i != 0){
+                    sb = new StringBuilder(sb.substring(0, sb.length() - 2));
+                }
+                sb.append("]");
+                sb.append('}');
+                return sb.toString();
+    }
+}
+class Faculty{
+    String name;
+    List<Student> students;
+
+    public Faculty(String name, Student[]students) {
+        this.name = name;
+        this.students = Arrays.stream(students).collect(Collectors.toList());
+    }
+    public int countStudentsFromCity(String cityName){
+        return (int) students.stream()
+                .filter(x-> Objects.equals(x.getCity(), cityName))
+                .count();
+    }
+    public Student getStudent(long index){
+        for (Student s : students){
+            if (s.getIndex() == index){
+                return s;
+            }
+        }
+        return null;
+    }
+    public double getAverageNumberOfContacts(){
+        int sum = students
+                .stream()
+                .mapToInt(x-> x.getPhoneContacts().length + x.getEmailContacts().length)
+                .sum();
+        int count = students.size();
+        return (double)sum / count;
+    }
+    public Student getStudentWithMostContacts(){
+        return students
+                .stream()
+                .sorted(Comparator
+                        .comparing(Student::getNumContacts)
+                        .thenComparing(Student::getIndex).reversed())
+                .collect(Collectors.toList())
+                .get(0);
+    }
+
+    @Override
+    public String toString() {
+        return "{\"fakultet\":\"" + name + "\", " +
+                "\"studenti\":" + students +
+                '}';
     }
 }

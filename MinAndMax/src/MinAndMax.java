@@ -29,7 +29,6 @@ class MinMax<T extends Comparable<T>>{
         minimum=null;
         maximum=null;
         processed=0;
-
         minCount=0;
         maxCount=0;
     }

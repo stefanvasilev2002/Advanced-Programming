@@ -1,159 +1,7 @@
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
-
-interface Item{
-    int getPrice();
-    String getType();
-}
-class InvalidExtraTypeException extends Exception{
-
-}
-class InvalidPizzaTypeException extends Exception{
-
-}
-class ItemOutOfStockException extends Exception{
-    Item item;
-
-    public ItemOutOfStockException(Item item) {
-        this.item = item;
-    }
-}
-class ArrayIndexOutOfBоundsException extends Exception{
-    int index;
-
-    public ArrayIndexOutOfBоundsException(int index)
-    {
-        this.index = index;
-    }
-}
-class EmptyOrder extends Exception{
-
-}
-class OrderLockedException extends Exception{
-
-}
-class ExtraItem implements Item{
-    private String type;
-    private int price;
-
-    public ExtraItem(String type) throws InvalidExtraTypeException{
-        if(!type.equals("Ketchup") && !type.equals("Coke")) {
-            throw new InvalidExtraTypeException();
-        }
-        else if(type.equals("Ketchup")){
-            price=3;
-        }
-        else {
-            price=5;
-        }
-        this.type = type;
-    }
-    public int getPrice(){
-        return price;
-    }
-    public String getType(){
-        return type;
-    }
-}
-class PizzaItem implements Item{
-    private String type;
-    private int price;
-
-    public PizzaItem(String type) throws InvalidPizzaTypeException{
-        if(!type.equals("Standard") && !type.equals("Pepperoni") && !type.equals("Vegetarian")) {
-            throw new InvalidPizzaTypeException();
-        }
-        else if(type.equals("Standard")){
-            price=10;
-        }
-        else if(type.equals("Pepperoni")){
-            price=12;
-        }
-        else {
-            price=8;
-        }
-        this.type = type;
-    }
-    public int getPrice(){
-        return price;
-    }
-    public String getType(){
-        return type;
-    }
-}
-
-class Order{
-    private Item[] items;
-    private int[]quantity;
-    boolean locked;
-
-    public Order() {
-        items=new Item[0];
-        quantity=new int[0];
-    }
-    public int check(Item item){
-        for(int i=0; i< items.length; i++){
-            if(items[i].getType().equals(item.getType())){
-                return i;
-            }
-        }
-        return -1;
-    }
-    public void addItem(Item item, int count) throws ItemOutOfStockException, OrderLockedException{
-        if(locked){
-            throw new OrderLockedException();
-        }
-        if(count>10){
-            throw new ItemOutOfStockException(item);
-        }
-        int a=check(item);
-        if(a!=-1){
-            items[a]=item;
-            quantity[a]=count;
-        }
-        else {
-            items = Arrays.copyOf(items, items.length + 1);
-            quantity = Arrays.copyOf(quantity, quantity.length + 1);
-            items[items.length - 1] = item;
-            quantity[quantity.length - 1] = count;
-        }
-    }
-    public int getPrice(){
-        int sum=0;
-        for(int i=0; i<items.length; i++){
-            sum+=(items[i].getPrice()*quantity[i]);
-        }
-        return sum;
-    }
-    public void displayOrder(){
-        for(int i=0; i< items.length; i++){
-            System.out.format("%3d.%-14s x%2d%5d$", i+1, items[i].getType(), quantity[i], items[i].getPrice()*quantity[i]);
-            System.out.println();
-        }
-        System.out.format("%-22s%5d$", "Total:", getPrice());
-        System.out.println();
-    }
-    public void removeItem(int idx)throws ArrayIndexOutOfBоundsException, OrderLockedException{
-        if(locked){
-            throw new OrderLockedException();
-        }
-        if(idx>items.length || idx<0){
-            throw new ArrayIndexOutOfBoundsException(idx);
-        }
-        for(int i=idx+1; i<items.length; i++){
-            items[i-1]=items[i];
-        }
-        items=Arrays.copyOf(items, items.length-1);
-    }
-    public void lock() throws EmptyOrder
-    {
-        if(items.length < 1)
-        {
-            throw new EmptyOrder();
-        }
-        locked = true;
-    }
-}
 
 public class PizzaOrderTest {
 
@@ -260,4 +108,137 @@ public class PizzaOrderTest {
         }
     }
 
+}
+interface Item{
+    int getPrice();
+    String getType();
+}
+class ExtraItem implements Item{
+    String type;
+    public ExtraItem(String type) throws InvalidExtraTypeException {
+        if (type != "Ketchup" && type != "Coke") {
+            throw new InvalidExtraTypeException();
+        }
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public int getPrice() {
+        if (Objects.equals(type, "Coke")){
+            return 5;
+        }
+        return 3;
+    }
+}
+class PizzaItem implements Item{
+    String type;
+    public PizzaItem(String type) throws InvalidPizzaTypeException {
+        if (type != "Pepperoni" && type != "Standard" && type != "Vegetarian") {
+            throw new InvalidPizzaTypeException();
+        }
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public int getPrice() {
+        if (Objects.equals(type, "Standard")){
+            return 10;
+        }
+        else if (Objects.equals(type, "Pepperoni")){
+            return 12;
+        }
+        return 8;
+    }
+}
+class Order{
+    List<Item> items;
+    List<Integer> counts;
+    boolean locked;
+    public Order(){
+        items = new LinkedList<>();
+        counts = new LinkedList<>();
+        locked = false;
+    }
+    public void addItem(Item item, int count) throws ItemOutOfStockException, OrderLockedException {
+        if (locked){
+            throw new OrderLockedException();
+        }
+        if (count > 10){
+            throw new ItemOutOfStockException(item);
+        }
+        for(Item i : items){
+            if (Objects.equals(i.getType(), item.getType())){
+                counts.set(items.indexOf(i), count);
+                return;
+            }
+        }
+        items.add(item);
+        counts.add(count);
+    }
+    public int getPrice(){
+        return items
+                .stream()
+                .mapToInt(x-> x.getPrice() * counts.get(items.indexOf(x)))
+                .sum();
+    }
+    public void displayOrder(){
+        for(int i = 1; i <= items.size(); i++){
+            System.out.printf("%3d.%-15sx%2d%5d$", i, items.get(i).getType(), counts.get(i), items.get(i).getPrice());
+        }
+    }
+    public void removeItem(int idx) throws ArrayIndexOutOfBoundsException, OrderLockedException {
+        if (locked){
+            throw new OrderLockedException();
+        }
+        if (idx < 0 || idx > items.size()){
+            throw new ArrayIndexOutOfBoundsException(idx);
+        }
+        items.remove(idx);
+        counts.remove(idx);
+    }
+    public void lock() throws EmptyOrder {
+        if (items.size() < 1){
+            throw new EmptyOrder();
+        }
+        locked = true;
+    }
+}
+class InvalidPizzaTypeException extends Exception{
+    public InvalidPizzaTypeException() {
+        super();
+    }
+}
+class InvalidExtraTypeException extends Exception{
+    public InvalidExtraTypeException() {
+        super();
+    }
+}
+class ItemOutOfStockException extends Exception{
+
+    public ItemOutOfStockException(Item item) {
+        super(String.format("Item out of stock: %s", item.toString()));
+    }
+}
+class ArrayIndexOutOfBoundsException extends Exception{
+    public ArrayIndexOutOfBoundsException(int idx) {
+        super(String.format("Index %d our of bounds", idx));
+    }
+}
+class EmptyOrder extends Exception{
+    public EmptyOrder() {
+        super();
+    }
+}
+class OrderLockedException extends Exception{
+    public OrderLockedException() {
+        super();
+    }
 }

@@ -1,11 +1,15 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Scanner;
 
 public class MojDDVTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         MojDDV mojDDV = new MojDDV();
 
@@ -15,106 +19,108 @@ public class MojDDVTest {
         System.out.println("===PRINTING TAX RETURNS RECORDS TO OUTPUT STREAM ===");
         mojDDV.printTaxReturns(System.out);
 
+        System.out.println("===PRINTING SUMMARY STATISTICS FOR TAX RETURNS TO OUTPUT STREAM===");
+        mojDDV.printStatistics(System.out);
+
     }
 }
 class Product{
     int price;
-    String type;
+    char typeDDV;
 
-    public Product(int price, String type) {
-        this.price=price;
-        this.type=type;
+    public Product(int price, char typeDDV) {
+        this.price = price;
+        this.typeDDV = typeDDV;
+    }
+    public double getTax(){
+        if (typeDDV == 'A'){
+            return price * 0.18 * 0.15;
+        } else if (typeDDV == 'B') {
+            return price * 0.05 * 0.15;
+        }
+        return 0;
     }
 
     public int getPrice() {
         return price;
     }
-    public String getType() {
-        return type;
-    }
 }
 class Receipt{
-    private List<Product> products;
-    private String id;
-
-    public Receipt() {
-        products=new ArrayList<>();
-        id="";
-    }
-
-    public Receipt(String line) throws AmountNotAllowedException {
-        String[]parts=line.split("\\s+");
-        id=parts[0];
-        products=new ArrayList<Product>();
-        int sum=0;
-        for(int i=1; i<parts.length; i+=2){
-            int price=Integer.parseInt(parts[i]);
-            sum+=price;
+    List<Product> products;
+    String id;
+    public Receipt(String id, String[]parts) throws AmountNotAllowedException {
+        this.products = new ArrayList<>();
+        this.id = id;
+        int sum = 0;
+        for(int i = 1; i < parts.length; i+=2){
+            sum+=Integer.parseInt(parts[i]);
         }
-        if(sum>30000){
+
+        if (sum > 30000){
             throw new AmountNotAllowedException(sum);
         }
-        for(int i=1; i<parts.length; i+=2){
-            int price=Integer.parseInt(parts[i]);
-            String type=parts[i+1];
-            products.add(new Product(price, type));
+        for(int i = 1; i < parts.length; i+=2){
+            products.add(new Product(Integer.parseInt(parts[i]), parts[i+1].charAt(0)));
         }
     }
-
-    public String getID() {
-        return id;
+    public double getDDV(){
+        return products.stream().mapToDouble(Product::getTax).sum();
     }
-    public int getSum() {
-        int sum=0;
-        for(int i=0; i<products.size(); i++){
-            Product temp=products.get(i);
-            sum+=temp.getPrice();
-        }
-        return sum;
-    }
-    public double getTax() {
-        double tax=0;
-        for(int i=0; i<products.size(); i++){
-            Product temp=products.get(i);
-            if(temp.getType().equals("A")){
-                tax+=(double)temp.getPrice()*0.18;
-            }
-            else if(temp.getType().equals("B")){
-                tax+=(double)temp.getPrice()*0.05;
-            }
-        }
-        return tax*0.15;
+    @Override
+    public String toString() {
+        return String.format("%10s\t%10d\t%10.5f\n",
+                id, products.stream().mapToInt(Product::getPrice).sum(),
+                products.stream().mapToDouble(Product::getTax).sum());
     }
 }
 class MojDDV{
     List<Receipt> receipts;
-    void readRecords (InputStream inputStream){
-        BufferedReader bf=new BufferedReader(new InputStreamReader(inputStream));
-        receipts=bf.lines().map(x-> {
-            try {
-                return new Receipt(x);
-            } catch (AmountNotAllowedException e) {
-                System.out.println(e.getMessage());
-                return new Receipt();
-            }
-        }).collect(Collectors.toList());
 
+    public MojDDV() {
+        this.receipts = new ArrayList<>();
     }
-    public void printTaxReturns (OutputStream outputStream){
-        PrintWriter pw= new PrintWriter(new OutputStreamWriter(outputStream));
-        //ID SUM_OF_AMOUNTS TAX_RETURN
-        for(int i=0; i<receipts.size(); i++){
-            Receipt temp=receipts.get(i);
-            if(temp.getSum()==0){
-                continue;
+
+    public void readRecords (InputStream inputStream) {
+        Scanner scanner = new Scanner(inputStream);
+        while (scanner.hasNextLine()){
+            String []parts = scanner.nextLine().split(" ");
+            try{
+                receipts.add(new Receipt(parts[0], parts));
+            }catch (AmountNotAllowedException e){
+                System.out.println(e.getMessage());
             }
-            pw.println(String.format("%s %d %.2f", temp.getID(), temp.getSum(), temp.getTax()));
         }
-        pw.flush();
+    }
+    public void printTaxReturns (OutputStream outputStream) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+
+        receipts.stream().forEach(x-> {
+            try {
+                writer.append(x.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        writer.flush();
+    }
+    public void printStatistics (OutputStream outputStream) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+
+        DoubleSummaryStatistics a = receipts
+                .stream()
+                .mapToDouble(Receipt::getDDV)
+                .summaryStatistics();
+        writer.append(String.format("min:\t%.3f\n", a.getMin()));
+        writer.append(String.format("max:\t%.3f\n", a.getMax()));
+        writer.append(String.format("sum:\t%.3f\n", a.getSum()));
+        writer.append(String.format("count:\t%-5d\n", a.getCount()));
+        writer.append(String.format("avg:\t%.3f\n", a.getAverage()));
+
+        writer.flush();
     }
 }
 class AmountNotAllowedException extends Exception{
-    public AmountNotAllowedException(int message) {
-        super("Receipt with amount "+message+" is not allowed to be scanned");
+    public AmountNotAllowedException(int sum) {
+        super(String.format("Receipt with amount %d is not allowed to be scanned", sum));
     }
 }

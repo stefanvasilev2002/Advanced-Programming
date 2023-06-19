@@ -1,8 +1,8 @@
-import java.sql.SQLOutput;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 public class WeatherStationTest {
@@ -24,7 +24,7 @@ public class WeatherStationTest {
             float vis = Float.parseFloat(parts[3]);
             line = scanner.nextLine();
             Date date = df.parse(line);
-            ws.addMeasurment(temp, wind, hum, vis, date);
+            ws.addMeasurement(temp, wind, hum, vis, date);
         }
         String line = scanner.nextLine();
         Date from = df.parse(line);
@@ -39,88 +39,73 @@ public class WeatherStationTest {
         }
     }
 }
+class Measurement{
+    float temperature;
+    float wind;
+    float humidity;
+    float visibility;
+    Date date;
 
-class WeatherStation{
-    private int days;
-    List<DataForMeasurement> datas;
-    public WeatherStation(int days){
-        this.days=days;
-        datas=new ArrayList<DataForMeasurement>();
-    }
-    public void addMeasurment(float temperature, float wind, float humidity, float visibility, Date date){
-        deleteOld(date);
-        if(!isRecent(date)) datas.add(new DataForMeasurement(temperature,wind,humidity,visibility,date));
-    }
-
-    private void deleteOld(Date newDate) {
-        long miliDays= (long) days *3600*24*1000;
-        List<DataForMeasurement> nova=new ArrayList<DataForMeasurement>();
-        for(int i=0; i<datas.size(); i++){
-            long diff=newDate.getTime()-datas.get(i).getDate().getTime();
-            if(diff<miliDays){
-                nova.add(datas.get(i));
-            }
-        }
-        datas=nova;
-    }
-    private boolean isRecent(Date newDate){
-        if(datas.size()==0) return false;
-        return newDate.getTime() - datas.get(datas.size()-1).getDate().getTime()<2.5*60*1000;
-    }
-
-    public int total() {
-        return datas.size();
-    }
-
-    public void status(Date from, Date to) {
-        datas.sort(Comparator.naturalOrder());
-        float temp=0;
-        int counter=0;
-        for (int i=0; i< datas.size(); i++){
-            DataForMeasurement m=datas.get(i);
-            if(m.getDate().compareTo(from)!=-1 && m.getDate().compareTo(to)!=1){
-                temp+=m.getTemperature();
-                System.out.println(m.toString());
-                counter++;
-            }
-        }
-        if(counter==0){
-            throw new RuntimeException();
-        }
-        System.out.printf("Average temperature: %.2f%n",temp/counter);
-    }
-}
-class DataForMeasurement implements Comparable<DataForMeasurement>{
-    private float temperature;
-    private float wind;
-    private float humidity;
-
-    private float visibility;
-    private Date date;
-
-    public DataForMeasurement(float temperature, float wind, float humidity,  float visibility, Date date) {
+    public Measurement(float temperature, float wind, float humidity, float visibility, Date date) {
         this.temperature = temperature;
-        this.humidity = humidity;
         this.wind = wind;
+        this.humidity = humidity;
         this.visibility = visibility;
         this.date = date;
     }
 
     @Override
-    public int compareTo(DataForMeasurement o) {
-        return date.compareTo(o.date);
+    public String toString() {
+        return String.format("%.1f %.1f km/h %.1f%% %.1f km %s",
+                temperature, wind, humidity, visibility, date.toString().replace("UTC", "GMT"));
     }
 
     public Date getDate() {
         return date;
     }
-
-    public float getTemperature() {
-        return temperature;
+}
+class WeatherStation{
+    int days;
+    List<Measurement> measurements;
+    public WeatherStation(int days) {
+        this.days = days;
+        this.measurements = new ArrayList<>();
     }
-
-    @Override
-    public String toString() {
-        return temperature +" "+ wind + " km/h " +humidity + "% "+ visibility +" km "+ date.toString();
+    public boolean checkTwoMinutes(Measurement m){
+        for (Measurement tmp : measurements){
+            if(m.date.getTime() - tmp.date.getTime() <= 150*1000 ){
+                return false;
+            }
+        }
+        return true;
+    }
+    public boolean checkXDays(Measurement x, Measurement m){
+        return m.date.getTime() - (long) days * 24 * 60 * 60*1000 <= x.date.getTime();
+    }
+    public void addMeasurement(float temperature, float wind, float humidity, float visibility, Date date){
+        Measurement m = new Measurement(temperature, wind, humidity, visibility, date);
+        if (checkTwoMinutes(m)){
+            measurements.add(m);
+            measurements = measurements
+                    .stream()
+                    .filter(x-> checkXDays(x, m))
+                    .collect(Collectors.toList());
+        }
+    }
+    public int total(){
+        return measurements.size();
+    }
+    public void status(Date from, Date to){
+        List<Measurement> tmp = measurements
+                .stream()
+                .filter(x-> x.date.getTime() >= from.getTime() && x.date.getTime() <= to.getTime())
+                .sorted(Comparator
+                        .comparing(Measurement::getDate))
+                .collect(Collectors.toList());
+        if (tmp.size() == 0){
+            throw new RuntimeException();
+        }
+        tmp.stream().forEach(System.out::println);
+        System.out.printf("Average temperature: %.2f\n", tmp.stream().mapToDouble(x->x.temperature).average().orElse(0));
     }
 }

@@ -1,7 +1,6 @@
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.stream.Collectors;
-
 public class EvaluatorTest {
 
     private static class Student implements Comparable<Student>{
@@ -20,7 +19,6 @@ public class EvaluatorTest {
             Double average = Double.parseDouble(parts[1]);
             int year = Integer.parseInt(parts[2]);
             return new Student(parts[0], average, year);
-
         }
 
         @Override
@@ -74,27 +72,28 @@ public class EvaluatorTest {
     }
 }
 interface IEvaluator<T extends Comparable<T>> {
-    boolean evaluate(T a, T b);
+    boolean evaluate (T a, T b);
 }
-class IEvaluatorsBuilder{
+class EvaluatorBuilder{
     public static <T extends Comparable<T>> IEvaluator<T> build (String operator){
-        switch (operator) {
+        switch (operator){
             case "==":
                 return (l, r) -> l.compareTo(r) == 0;
-            case "<":
-                return (l, r) -> l.compareTo(r) < 0;
             case ">":
                 return (l, r) -> l.compareTo(r) > 0;
             case "!=":
                 return (l, r) -> l.compareTo(r) != 0;
+            case "<":
+                return (l, r) -> l.compareTo(r) < 0;
             default:
-                return (l,r) -> false;
+                return (l, r) -> false;
         }
+
     }
 }
-class Evaluator {
-    public static <T extends Comparable<T>> boolean evaluateExpression(T a, T b, String operator) {
-        IEvaluator<T> evaluator = IEvaluatorsBuilder.build(operator);
-        return evaluator.evaluate(a, b);
+class Evaluator{
+    public static <T extends Comparable<T>> boolean evaluateExpression (T left, T right, String operator){
+        IEvaluator<T> a = EvaluatorBuilder.build(operator);
+        return a.evaluate(left, right);
     }
 }

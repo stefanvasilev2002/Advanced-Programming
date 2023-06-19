@@ -33,89 +33,76 @@ public class StaduimTest {
         stadium.showSectors();
     }
 }
-class Sector implements Comparable<Sector>{
-    String name;
+class Sector{
+    String code;
+    int numSeats;
     int seats;
-    HashMap<Integer, Integer> taken;
-    HashSet<Integer> types;
+    boolean []seatTaken;
+    int type;
+    public Sector(String sectorName, int size) {
+        code = sectorName;
+        numSeats = size;
+        seats = size;
+        seatTaken = new boolean[numSeats + 1];
+        Arrays.fill(seatTaken, false);
+        type = 0;
+    }
 
-    public Sector(String code, int seats) {
-        this.name = code;
-        this.seats = seats;
-        taken = new HashMap<>();
-        types = new HashSet<>();
+    public String getCode() {
+        return code;
     }
-    int free() {
-        return seats - taken.size();
+
+    public int getNumSeats() {
+        return numSeats;
     }
-    @Override
-    public int compareTo(Sector o) {
-        if(free()==o.free()){
-            return name.compareTo(o.name);
-        }
-        return o.free()-free();
-    }
+
     @Override
     public String toString() {
-        return String.format("%s\t%d/%d\t%.1f%%", name, free(), seats,
-                (seats - free()) * 100.0 / seats);
-    }
-    public void takeSeat(int seat, int type) throws SeatNotAllowedException {
-        if(type==1){
-            if(types.contains(2)){
-                throw new SeatNotAllowedException();
-            }
-        }
-        else if(type==2){
-            if(types.contains(1)){
-                throw new SeatNotAllowedException();
-            }
-        }
-        types.add(type);
-        taken.put(seat, type);
-    }
-    public boolean isTaken(int seat) {
-        return taken.containsKey(seat);
+        return String.format("%s\t%d/%d\t%.1f%%", code, numSeats, seats, (double)(seats - numSeats) / seats * 100.0);
     }
 }
 class Stadium{
     String name;
-    HashMap<String, Sector> sectors;
+    Map<String, Sector> sectors;
     public Stadium(String name){
-        this.name=name;
-        sectors=new HashMap<>();
+        this.name = name;
+        sectors = new HashMap<>();
     }
-    public void createSectors(String[] sectorNames, int[] sectorSizes) {
-        for (int i = 0; i < sectorNames.length; ++i) {
-            addSector(sectorNames[i], sectorSizes[i]);
+    public void createSectors(String[] sectorNames, int[] sizes){
+        for(int i = 0; i < sectorNames.length; i++){
+            sectors.put(sectorNames[i], new Sector(sectorNames[i], sizes[i]));
         }
-    }
-    void addSector(String name, int size) {
-        Sector sector = new Sector(name, size);
-        sectors.put(name, sector);
     }
     public void buyTicket(String sectorName, int seat, int type) throws SeatTakenException, SeatNotAllowedException {
-        Sector temp = sectors.get(sectorName);
-        if(temp.isTaken(seat)){
+        Sector sector = sectors.get(sectorName);
+        if(sector.seatTaken[seat]) {
             throw new SeatTakenException();
         }
-        temp.takeSeat(seat, type);
-    }
-    public void showSectors(){
-        List<Sector> sectorsList = new ArrayList<>(sectors.values());
-        Collections.sort(sectorsList);
-        for (Sector sector : sectorsList) {
-            System.out.println(sector);
+        else if(type == 1 && sector.type == 2){
+            throw new SeatNotAllowedException();
+        }
+        else if(type == 2 && sector.type == 1){
+            throw new SeatNotAllowedException();
+        }
+        else {
+            sector.seatTaken[seat] = true;
+            if(sector.type == 0){
+                sector.type = type;
+            }
+            sector.numSeats--;
         }
     }
-}
-class SeatNotAllowedException extends Exception{
-    public SeatNotAllowedException() {
-        super();
+    public void showSectors(){
+        sectors
+                .values()
+                .stream()
+                .sorted(Comparator.comparing(Sector::getNumSeats).reversed().thenComparing(Sector::getCode))
+                .forEach(System.out::println);
     }
 }
 class SeatTakenException extends Exception{
-    public SeatTakenException() {
-        super();
-    }
+
+}
+class SeatNotAllowedException extends Exception{
+
 }

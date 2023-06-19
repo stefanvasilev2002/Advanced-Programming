@@ -1,4 +1,3 @@
-
 import java.util.*;
 
 public class ComponentTest {
@@ -33,23 +32,25 @@ public class ComponentTest {
                 } else if(what == 4) {
                     break;
                 }
+
             } catch (InvalidPositionException e) {
                 System.out.println(e.getMessage());
             }
             scanner.nextLine();
         }
+
         System.out.println("=== ORIGINAL WINDOW ===");
         System.out.println(window);
         int weight = scanner.nextInt();
         scanner.nextLine();
         String color = scanner.nextLine();
         window.changeColor(weight, color);
-        System.out.println(String.format("=== CHANGED COLOR (%d, %s) ===", weight, color));
+        System.out.printf("=== CHANGED COLOR (%d, %s) ===%n", weight, color);
         System.out.println(window);
         int pos1 = scanner.nextInt();
         int pos2 = scanner.nextInt();
-        System.out.println(String.format("=== SWITCHED COMPONENTS %d <-> %d ===", pos1, pos2));
-        window.swichComponents(pos1, pos2);
+        System.out.printf("=== SWITCHED COMPONENTS %d <-> %d ===%n", pos1, pos2);
+        window.switchComponents(pos1, pos2);
         System.out.println(window);
     }
 }
@@ -61,84 +62,103 @@ class Component implements Comparable<Component>{
     public Component(String color, int weight) {
         this.color = color;
         this.weight = weight;
-        components=new TreeSet<>();
+        this.components = new TreeSet<>();
+    }
+    public void addComponent(Component component){
+        components.add(component);
+        Window.addComponentToAll(component);
     }
 
-    void addComponent(Component component){
-        components.add(component);
+    public String getColor() {
+        return color;
     }
-    static void createString(StringBuilder sb, Component component, int level) {
-        for (int i = 0; i < level; ++i)
-            sb.append("---");
-        sb.append(String.format("%d:%s\n", component.weight, component.color));
-        for(Component c : component.components) {
-            createString(sb, c, level + 1);
-        }
-    }
-    void changeColor(int weight, String color){
-        if(this.weight<weight){
-            this.color=color;
-        }
-        for (Component composite : components) {
-            change(composite, weight, color);
-        }
-    }
-    static void change(Component component, int weight, String color) {
-        if(component.weight < weight) {
-            component.color = color;
-        }
-        for (Component c : component.components) {
-            change(c, weight, color);
-        }
+
+    public int getWeight() {
+        return weight;
     }
 
     @Override
     public int compareTo(Component o) {
-        if(weight-o.weight==0){
-            return color.compareTo(o.color);
+        return Comparator
+                .comparing(Component::getWeight)
+                .thenComparing(Component::getColor)
+                .compare(this, o);
+    }
+
+    public String toString(Map.Entry<Integer,Component> entry, String s) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%d:%d:%s\n", entry.getKey(), weight, color));
+        for (Component c : components){
+            sb.append(c.toString(s + "---"));
         }
-        return weight-o.weight;
+        return sb.toString();
+    }
+
+    public String toString(String s) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s%d:%s\n", s, weight, color));
+        for (Component c : components){
+            sb.append(c.toString(s + "---"));
+        }
+        return sb.toString();
+    }
+    public void changeColor(String color){
+        this.color = color;
     }
 }
 class Window{
     String name;
     Map<Integer, Component> components;
-    public Window(String name){
-        this.name=name;
-        components=new TreeMap<>();
+    static List<Component> allComponents;
+    public Window(String name) {
+        this.name = name;
+        this.components = new TreeMap<>();
+        allComponents = new ArrayList<>();
     }
-    void addComponent(int position, Component component) throws InvalidPositionException {
+
+    public static void addComponentToAll(Component component) {
+        allComponents.add(component);
+    }
+
+    public void addComponent(int position, Component component) throws InvalidPositionException {
         if(components.containsKey(position)){
             throw new InvalidPositionException(position);
         }
         components.put(position, component);
+        allComponents.add(component);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("WINDOW %s\n", name));
-        for(Map.Entry<Integer, Component> entry : components.entrySet()){
-            sb.append(String.format("%d:", entry.getKey()));
-            Component.createString(sb, entry.getValue(),0);
-        }
 
+        sb.append("WINDOW ").append(name).append("\n");
+        for (Map.Entry<Integer, Component> entry : components.entrySet()){
+            sb.append(entry.getValue().toString(entry, ""));
+        }
         return sb.toString();
     }
-    void changeColor(int weight, String color){
-        for(Component c : components.values()){
-            c.changeColor(weight, color);
+    public void changeColor(int weight, String color){
+        /*allComponents
+                .stream()
+                .filter(x-> x.getWeight() < weight)
+                .forEach(x-> x.changeColor(color));*/
+        for(Component c : allComponents){
+            if (c.getWeight() < weight){
+                c.changeColor(color);
+            }
         }
     }
-    void swichComponents(int pos1, int pos2){
-        Component temp1=components.get(pos1);
-        Component temp2=components.get(pos2);
-        components.put(pos1, temp2);
-        components.put(pos2, temp1);
+    public void switchComponents(int pos1, int pos2){
+        Component a = components.remove(pos1);
+        Component b = components.remove(pos2);
+        components.put(pos2, a);
+        components.put(pos1, b);
     }
 }
-class InvalidPositionException extends Throwable {
+class InvalidPositionException extends Exception{
+
     public InvalidPositionException(int position) {
-        super(String.format("Invalid position %d, alredy taken!",position));
+        super(String.format("Invalid position %d, alredy taken!", position));
     }
 }

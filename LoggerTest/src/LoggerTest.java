@@ -7,28 +7,40 @@ import java.util.stream.IntStream;
 
 interface ILog {
     String getType();
+
     String getMessage();
+
     void setMessage(String newMessage);
+
     long getTimestamp();
 }
-
-
-interface LogProcessor<T extends ILog> {
+interface LogProcessor<T extends  ILog & Comparable<T>> {
         ArrayList<T> processLogs(ArrayList<T> logs);
-        }
+}
+class LogSystem<T extends  ILog & Comparable<T>> {
+    ArrayList<T> logsList;
 
-class LogSystem<T extends ILog> {
-    private ArrayList<T> logsList;
-
-    public LogSystem(ArrayList<T> elements) {
-        this.logsList = elements;
+    public LogSystem(ArrayList<T> logsList) {
+        this.logsList = logsList;
     }
 
-        void printResults() {
+    void printResults() {
 
-        LogProcessor<T> firstLogProcessor = x -> x.stream().filter(t -> t.getType().equals("INFO")).collect(Collectors.toCollection(ArrayList::new));
-        LogProcessor<T> secondLogProcessor = x -> x.stream().filter(t -> t.getMessage().length()<100).collect(Collectors.toCollection(ArrayList::new));
-        LogProcessor<T> thirdLogProcessor = x -> x.stream().sorted().collect(Collectors.toCollection(ArrayList::new));
+        //TODO define concrete log processors with lambda expressions
+        LogProcessor<T> firstLogProcessor = logs -> logs
+                .stream()
+                .filter(x -> Objects.equals(x.getType(), "INFO"))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        LogProcessor<T> secondLogProcessor = logs -> logs
+                .stream()
+                .filter(x -> x.getMessage().length() < 100)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        LogProcessor<T> thirdLogProcessor = logs -> logs
+                .stream()
+                .sorted()
+                .collect(Collectors.toCollection(ArrayList::new));
 
         System.out.println("RESULTS FROM THE FIRST LOG PROCESSOR");
         firstLogProcessor.processLogs(logsList).forEach(l -> System.out.println(l.toString()));
@@ -39,8 +51,7 @@ class LogSystem<T extends ILog> {
         System.out.println("RESULTS FROM THE THIRD LOG PROCESSOR");
         thirdLogProcessor.processLogs(logsList).forEach(l -> System.out.println(l.toString()));
         }
-
-}
+        }
 
 class RealLog implements ILog, Comparable<RealLog> {
     String type;

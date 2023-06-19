@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Airports/Airports.iml" filepath="$PROJECT_DIR$/Airports/Airports.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Anagrams/Anagrams.iml" filepath="$PROJECT_DIR$/../Anagrams/Anagrams.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ApplicantEvaluationTest/ApplicantEvaluationTest.iml" filepath="$PROJECT_DIR$/ApplicantEvaluationTest/ApplicantEvaluationTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ArchiveStoreTest/ArchiveStoreTest.iml" filepath="$PROJECT_DIR$/ArchiveStoreTest/ArchiveStoreTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Audition/Audition.iml" filepath="$PROJECT_DIR$/Audition/Audition.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Bank/Bank.iml" filepath="$PROJECT_DIR$/Bank/Bank.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BasketballStats/BasketballStats.iml" filepath="$PROJECT_DIR$/BasketballStats/BasketballStats.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BlockContainerTest/BlockContainerTest.iml" filepath="$PROJECT_DIR$/BlockContainerTest/BlockContainerTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BooksTest/BooksTest.iml" filepath="$PROJECT_DIR$/BooksTest/BooksTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CanvasTest/CanvasTest.iml" filepath="$PROJECT_DIR$/CanvasTest/CanvasTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CarTest/CarTest.iml" filepath="$PROJECT_DIR$/CarTest/CarTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ChatSystemTest/ChatSystemTest.iml" filepath="$PROJECT_DIR$/ChatSystemTest/ChatSystemTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CirclesTest/CirclesTest.iml" filepath="$PROJECT_DIR$/CirclesTest/CirclesTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ClusterTest/ClusterTest.iml" filepath="$PROJECT_DIR$/ClusterTest/ClusterTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ComplexNumberTest/ComplexNumberTest.iml" filepath="$PROJECT_DIR$/ComplexNumberTest/ComplexNumberTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Components/Components.iml" filepath="$PROJECT_DIR$/Components/Components.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ContactsTester/ContactsTester.iml" filepath="$PROJECT_DIR$/ContactsTester/ContactsTester.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DailyTemperatureTest/DailyTemperatureTest.iml" filepath="$PROJECT_DIR$/DailyTemperatureTest/DailyTemperatureTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FileSystem/DiscountsTest/DiscountsTest.iml" filepath="$PROJECT_DIR$/FileSystem/DiscountsTest/DiscountsTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EvaluatorTest/EvaluatorTest.iml" filepath="$PROJECT_DIR$/EvaluatorTest/EvaluatorTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EventCalendarTest/EventCalendarTest.iml" filepath="$PROJECT_DIR$/EventCalendarTest/EventCalendarTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/F1Test/F1Test.iml" filepath="$PROJECT_DIR$/F1Test/F1Test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FileSystem/FileSystem.iml" filepath="$PROJECT_DIR$/FileSystem/FileSystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FileSystemTest/FileSystemTest.iml" filepath="$PROJECT_DIR$/FileSystemTest/FileSystemTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FootballTeam/FootballTeam.iml" filepath="$PROJECT_DIR$/FootballTeam/FootballTeam.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FrontPageTest/FrontPageTest.iml" filepath="$PROJECT_DIR$/FrontPageTest/FrontPageTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GenericFractionTest/GenericFractionTest.iml" filepath="$PROJECT_DIR$/GenericFractionTest/GenericFractionTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IntegerArrayTester/IntegerArrayTester.iml" filepath="$PROJECT_DIR$/IntegerArrayTester/IntegerArrayTester.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../IntegerListTest/IntegerListTest.iml" filepath="$PROJECT_DIR$/../IntegerListTest/IntegerListTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LabExercisesTest/LabExercisesTest.iml" filepath="$PROJECT_DIR$/LabExercisesTest/LabExercisesTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoadedCoinTest/LoadedCoinTest.iml" filepath="$PROJECT_DIR$/LoadedCoinTest/LoadedCoinTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LogTester/LogTester.iml" filepath="$PROJECT_DIR$/LogTester/LogTester.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Logger/Logger.iml" filepath="$PROJECT_DIR$/Logger/Logger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoggerTest/LoggerTest.iml" filepath="$PROJECT_DIR$/LoggerTest/LoggerTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Lozinki/Lozinki.iml" filepath="$PROJECT_DIR$/Lozinki/Lozinki.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MapSortingTest/MapSortingTest.iml" filepath="$PROJECT_DIR$/MapSortingTest/MapSortingTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Matrix/Matrix.iml" filepath="$PROJECT_DIR$/Matrix/Matrix.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MinAndMax/MinAndMax.iml" filepath="$PROJECT_DIR$/MinAndMax/MinAndMax.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MojDDVTest/MojDDVTest.iml" filepath="$PROJECT_DIR$/MojDDVTest/MojDDVTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MojDDVTest2/MojDDVTest2.iml" filepath="$PROJECT_DIR$/MojDDVTest2/MojDDVTest2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Movies/Movies.iml" filepath="$PROJECT_DIR$/Movies/Movies.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NamesTest/NamesTest.iml" filepath="$PROJECT_DIR$/NamesTest/NamesTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MinAndMax/PatternTest/PatternTest.iml" filepath="$PROJECT_DIR$/MinAndMax/PatternTest/PatternTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MinAndMax/PatternTest/PayrollSystemTest/PayrollSystemTest.iml" filepath="$PROJECT_DIR$/MinAndMax/PatternTest/PayrollSystemTest/PayrollSystemTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PayrollSystemTest2/PayrollSystemTest2.iml" filepath="$PROJECT_DIR$/PayrollSystemTest2/PayrollSystemTest2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Pharmacy/Pharmacy.iml" filepath="$PROJECT_DIR$/Pharmacy/Pharmacy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PhoneBookTest/PhoneBookTest.iml" filepath="$PROJECT_DIR$/PhoneBookTest/PhoneBookTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PhonebookTester/PhonebookTester.iml" filepath="$PROJECT_DIR$/PhonebookTester/PhonebookTester.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PizzaOrderTest/PizzaOrderTest.iml" filepath="$PROJECT_DIR$/PizzaOrderTest/PizzaOrderTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/QueueTest/QueueTest.iml" filepath="$PROJECT_DIR$/QueueTest/QueueTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ResizableArrayTest/ResizableArrayTest.iml" filepath="$PROJECT_DIR$/ResizableArrayTest/ResizableArrayTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RomanConverter/RomanConverter.iml" filepath="$PROJECT_DIR$/RomanConverter/RomanConverter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LogTester/RuleTester/RuleTester.iml" filepath="$PROJECT_DIR$/LogTester/RuleTester/RuleTester.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SchedulerTest/SchedulerTest.iml" filepath="$PROJECT_DIR$/SchedulerTest/SchedulerTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ShakerSort/ShakerSort.iml" filepath="$PROJECT_DIR$/ShakerSort/ShakerSort.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Shapes1Test/Shapes1Test.iml" filepath="$PROJECT_DIR$/Shapes1Test/Shapes1Test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Shapes2Test/Shapes2Test.iml" filepath="$PROJECT_DIR$/Shapes2Test/Shapes2Test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ShapesTest/ShapesTest.iml" filepath="$PROJECT_DIR$/ShapesTest/ShapesTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/StackedCanvas/StackedCanvas.iml" filepath="$PROJECT_DIR$/StackedCanvas/StackedCanvas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Stadium/Stadium.iml" filepath="$PROJECT_DIR$/Stadium/Stadium.iml" />
+      <module fileurl="file://$PROJECT_DIR$/StopCoronaTest/StopCoronaTest.iml" filepath="$PROJECT_DIR$/StopCoronaTest/StopCoronaTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/StudentRecordsTest/StudentRecordsTest.iml" filepath="$PROJECT_DIR$/StudentRecordsTest/StudentRecordsTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SubtitlesTest/SubtitlesTest.iml" filepath="$PROJECT_DIR$/SubtitlesTest/SubtitlesTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SuperStringTest/SuperStringTest.iml" filepath="$PROJECT_DIR$/SuperStringTest/SuperStringTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TaskSchedulerTest/TaskSchedulerTest.iml" filepath="$PROJECT_DIR$/TaskSchedulerTest/TaskSchedulerTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TasksManagerTest/TasksManagerTest.iml" filepath="$PROJECT_DIR$/TasksManagerTest/TasksManagerTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/untitled1/TextProcessor.iml" filepath="$PROJECT_DIR$/untitled1/TextProcessor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TimesTest/TimesTest.iml" filepath="$PROJECT_DIR$/TimesTest/TimesTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TripleTest/TripleTest.iml" filepath="$PROJECT_DIR$/TripleTest/TripleTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/UniqueNames/UniqueNames.iml" filepath="$PROJECT_DIR$/UniqueNames/UniqueNames.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeatherApplication/WeatherApplication.iml" filepath="$PROJECT_DIR$/WeatherApplication/WeatherApplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeatherStation/WeatherStation.iml" filepath="$PROJECT_DIR$/WeatherStation/WeatherStation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeatherStationTest/WeatherStationTest.iml" filepath="$PROJECT_DIR$/WeatherStationTest/WeatherStationTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../WordVectors/WordVectors.iml" filepath="$PROJECT_DIR$/../WordVectors/WordVectors.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../WordVectors/XMLTest/XMLTest.iml" filepath="$PROJECT_DIR$/../WordVectors/XMLTest/XMLTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/untitled/untitled.iml" filepath="$PROJECT_DIR$/untitled/untitled.iml" />
+    </modules>
+  </component>
+</project>

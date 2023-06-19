@@ -1,9 +1,9 @@
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * I Partial exam 2016
+ */
 public class TaskSchedulerTest {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -43,25 +43,19 @@ public void run(TaskScheduler<T> scheduler, T[] tasks) {
         }
 
 interface TaskScheduler<T extends Task>{
-    List<T>schedule(T[]tasks);
+    List<T> schedule(T[]tasks);
 }
 
-interface Task extends Comparable<Task> {
+interface Task{
     int getOrder();
-    @Override
-    default int compareTo(Task o){
-        return Integer.compare(getOrder(), o.getOrder());
-    }
 }
 
-class PriorityTask implements Task {
+class PriorityTask implements Task{
     private final int priority;
 
     public PriorityTask(int priority) {
         this.priority = priority;
     }
-
-
     @Override
     public String toString() {
         return String.format("PT -> %d", getOrder());
@@ -74,6 +68,7 @@ class PriorityTask implements Task {
 
 class TimedTask implements Task {
     private final int time;
+
     public TimedTask(int time) {
         this.time = time;
     }
@@ -81,20 +76,29 @@ class TimedTask implements Task {
     public String toString() {
         return String.format("TT -> %d", getOrder());
     }
+
     @Override
     public int getOrder() {
         return time;
     }
 }
 
-class Schedulers<T extends Task> {
-    public static <T extends Task> TaskScheduler<T> getOrdered() {
-
-        return x->Arrays.stream(x).sorted().collect(Collectors.toList());
-
+class Schedulers {
+    public static<T extends Task> TaskScheduler<T> getOrdered() {
+        return new TaskScheduler<T>() {
+            @Override
+            public List<T> schedule(T[] tasks) {
+                return Arrays.stream(tasks)
+                        .sorted(Comparator.comparing(Task::getOrder))
+                        .collect(Collectors.toList());
+            }
+        };
     }
 
-    public static <T extends Task> TaskScheduler<T> getFiltered(int order) {
-        return x->Arrays.stream(x).filter(t->t.getOrder()<=order).collect(Collectors.toList());
+    public static<T extends Task> TaskScheduler<T> getFiltered(int order) {
+        return tasks -> Arrays.stream(tasks)
+                .filter(x-> x.getOrder() < order)
+                .collect(Collectors.toList());
+
     }
 }

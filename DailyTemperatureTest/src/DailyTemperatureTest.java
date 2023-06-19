@@ -1,9 +1,11 @@
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentMap;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * I partial exam 2016
+ */
 public class DailyTemperatureTest {
     public static void main(String[] args) {
         DailyTemperatures dailyTemperatures = new DailyTemperatures();
@@ -14,121 +16,69 @@ public class DailyTemperatureTest {
         dailyTemperatures.writeDailyStats(System.out, 'F');
     }
 }
-class DailyTemperatures{
-    private List<Day> days;
-    public DailyTemperatures(){
+class Day{
+    List<Integer> temperatures;
+    int day;
+    String type;
 
-    }
-    public void readTemperatures(InputStream in) {
-        BufferedReader bf=new BufferedReader(new InputStreamReader(in));
-        days=bf.lines().map(Day::new).collect(Collectors.toList());
-    }
-
-    public void writeDailyStats(OutputStream outputStream, char scale) {
-        days=days.stream().sorted().collect(Collectors.toList());
-        PrintWriter pw= new PrintWriter(new OutputStreamWriter(outputStream));
-        if(scale=='C'){
-            for(int i=0; i<days.size(); i++){
-                Day temp=days.get(i);
-                if(temp.getFormat()=='C'){
-                    pw.println(String.format("%3d: Count:%4d Min:%7.2f%c Max:%7.2f%c Avg:%7.2f%c",
-                            temp.getNumberOfDay(), temp.getNumberOfTemperatures(), temp.getMin(),scale, temp.getMax(),scale, temp.getAverage(),scale));
-                }
-                else {
-                    pw.println(String.format("%3d: Count:%4d Min:%7.2f%c Max:%7.2f%c Avg:%7.2f%c",
-                            temp.getNumberOfDay(), temp.getNumberOfTemperatures(), (temp.getMin()-32)*5/9,scale, (temp.getMax()-32)*5/9,scale, (temp.getAverage()-32)*5/9,scale));
-
-                }
-
-            }
+    public Day(int day, String line) {
+        this.day = day;
+        temperatures = new ArrayList<>();
+        String type = null;
+        String []parts = line.split(" ");
+        type = String.valueOf(parts[1].charAt(parts[1].length() - 1));
+        List<String> tmp = Arrays.stream(parts).skip(1).collect(Collectors.toList());
+        for(String p : tmp){
+            temperatures.add(Integer.parseInt(p.substring(0, p.length() - 1)));
         }
-        else {
-            for(int i=0; i<days.size(); i++){
-                Day temp=days.get(i);
-                if(temp.getFormat()=='F'){
-                    pw.println(String.format("%3d: Count:%4d Min:%7.2f%c Max:%7.2f%c Avg:%7.2f%c",
-                            temp.getNumberOfDay(), temp.getNumberOfTemperatures(), temp.getMin(),scale, temp.getMax(),scale, temp.getAverage(),scale));
-                }
-                else {
-                    pw.println(String.format("%3d: Count:%4d Min:%7.2f%c Max:%7.2f%c Avg:%7.2f%c",
-                            temp.getNumberOfDay(), temp.getNumberOfTemperatures(), (temp.getMin()*9)/5+32,scale, (temp.getMax()*9)/5+32,scale, (temp.getAverage()*9)/5+32,scale));
+        this.type = type;
+    }
 
-                }
-
-            }
+    public String toString(char scale) {
+        temperatures = temperatures.stream().sorted().collect(Collectors.toList());
+        if (scale == 'C' && Objects.equals(type, "F")){
+            return String.format("%3d: Count: %3d Min: %6.2fC Max: %6.2fC Avg: %6.2fC", day, temperatures.size(), FToC(temperatures.get(0)), FToC(temperatures.get(temperatures.size()-1)), FToC(temperatures.stream().mapToInt(x->x).average().orElse(0)));
         }
-        pw.flush();
+        else if (scale == 'F' && Objects.equals(type, "C")){
+            return String.format("%3d: Count: %3d Min: %6.2fF Max: %6.2fF Avg: %6.2fF", day, temperatures.size(), CToF(temperatures.get(0)), CToF(temperatures.get(temperatures.size()-1)), CToF(temperatures.stream().mapToInt(x->x).average().orElse(0)));
+        }
+        else if (scale == 'F' && Objects.equals(type, "F")){
+            return String.format("%3d: Count: %3d Min: %6.2fF Max: %6.2fF Avg: %6.2fF", day, temperatures.size(), (double)temperatures.get(0), (double)temperatures.get(temperatures.size()-1), temperatures.stream().mapToInt(x->x).average().orElse(0));
+        }
+        else{
+            return String.format("%3d: Count: %3d Min: %6.2fC Max: %6.2fC Avg: %6.2fC", day, temperatures.size(), (double)temperatures.get(0), (double)temperatures.get(temperatures.size()-1), temperatures.stream().mapToInt(x->x).average().orElse(0));
+        }
+    }
+
+    public double FToC(double temp) {
+        return (temp - 32) * 5 / 9;
+    }
+    public double CToF(double temp) {
+        return temp*9/5 + 32;
     }
 }
-class Day implements Comparable<Day>{
-    private int numberOfDay;
-    private List<Temperature> temperatures;
+class DailyTemperatures {
+    Map<Integer, Day> dayMap;
 
-    public Day(String t) {
-        temperatures=new ArrayList<Temperature>();
-        String[]parts=t.split(" ");
-        numberOfDay=Integer.parseInt(parts[0]);
-        for(int i=1; i<parts.length; i++){
-            temperatures.add(new Temperature(parts[i]));
-        }
+    public DailyTemperatures() {
+        this.dayMap = new HashMap<>();
     }
-    public char getFormat(){
-        return temperatures.get(0).getFormat();
-    }
+    public void readTemperatures(InputStream inputStream){
+        Scanner scanner = new Scanner(inputStream);
+        while (scanner.hasNextLine()){
+            String line = scanner.nextLine();
+            String []parts = line.split(" ");
+            int day = Integer.parseInt(parts[0]);
 
-    public int getNumberOfDay() {
-        return numberOfDay;
-    }
-    public int getNumberOfTemperatures() {
-        return temperatures.size();
-    }
-    public float getMin() {
-        int min = Integer.MAX_VALUE;
-        for (int i = 0; i < temperatures.size(); i++) {
-            Temperature temp=temperatures.get(i);
-            if(temp.getTemp()<min){
-                min=temp.getTemp();
-            }
+            dayMap.put(day, new Day(day, line));
         }
-        return min;
-    }
-    public float getMax() {
-        int max = Integer.MIN_VALUE;
-        for (int i = 0; i < temperatures.size(); i++) {
-            Temperature temp=temperatures.get(i);
-            if(temp.getTemp()>max){
-                max=temp.getTemp();
-            }
-        }
-        return max;
-    }
-    public float getAverage() {
-        int avg=0;
-        for (int i = 0; i < temperatures.size(); i++) {
-            Temperature temp=temperatures.get(i);
-            avg+=temp.getTemp();
-        }
-        return (float) avg/temperatures.size();
-    }
-    @Override
-    public int compareTo(Day o) {
-        return Integer.compare(numberOfDay, o.numberOfDay);
-    }
-}
-class Temperature{
-    private int temp;
-    private char format;
 
-    public Temperature(String part) {
-        format=part.charAt(part.length()-1);
-        part=part.substring(0,part.length()-1);
-        temp=Integer.parseInt(part);
     }
-
-    public char getFormat() {
-        return format;
-    }
-    public int getTemp() {
-        return temp;
+    public void writeDailyStats(OutputStream outputStream, char scale){
+        dayMap
+                .values()
+                .stream()
+                .sorted(Comparator.comparingInt(x-> x.day))
+                .forEach(x-> System.out.println(x.toString(scale)));
     }
 }

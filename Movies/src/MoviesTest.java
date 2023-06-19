@@ -1,6 +1,7 @@
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
 
 public class MoviesTest {
     public static void main(String[] args) {
@@ -31,74 +32,70 @@ public class MoviesTest {
         }
     }
 }
-class Movie implements Comparable<Movie>{
-    String title;
+class Movie{
+    String name;
     List<Integer> ratings;
-
-    public Movie(String title, int[] ratings) {
-        this.title=title;
-        this.ratings=new ArrayList<>();
-        for(int i : ratings){
-            this.ratings.add(i);
-        }
+    int maxRatings;
+    public Movie(String title, List<Integer> list) {
+        this.name = title;
+        this.ratings = list;
     }
-    public double average(){
-        double sum=0;
-        for(int i=0; i<ratings.size(); i++){
-            sum+=ratings.get(i);
-        }
-        return sum/ratings.size();
+    public double avgRating(){
+        return ratings.stream().mapToDouble(x->x).sum() / ratings.size();
     }
 
-    @Override
-    public int compareTo(Movie o) {
-        if(Double.compare(average(), o.average())==0){
-            return  o.title.compareTo(title);
-        }
-        return Double.compare(average(), o.average());
+    public String getName() {
+        return name;
+    }
+    public double ratingCoef(){
+        return avgRating() * ratings.size() / maxRatings;
+    }
+
+    public void setMaxRatings(int maxRatings) {
+        this.maxRatings = maxRatings;
     }
 
     @Override
     public String toString() {
-        return String.format("%s (%.2f) of %d ratings",title, average(), ratings.size());
+        return String.format("%s (%.2f) of %d ratings", name, avgRating(), ratings.size());
     }
 }
-class MoviesList {
-    List<Movie> movies;
-    int maxRating;
-
-    public MoviesList() {
-        movies=new ArrayList<>();
-        maxRating=0;
+class MoviesList{
+    List<Movie>movies;
+    public MoviesList(){
+        this.movies = new ArrayList<>();
     }
-
     public void addMovie(String title, int[] ratings){
-        movies.add(new Movie(title, ratings));
-        if(ratings.length>maxRating){
-            maxRating=ratings.length;
-        }
+        movies.add(new Movie(title, Arrays.stream(ratings)
+                .boxed()
+                .collect(Collectors.toList())));
     }
     public List<Movie> top10ByAvgRating(){
-        return movies.stream().sorted(Comparator.reverseOrder()).limit(10).collect(Collectors.toList());
-    }
-    public List<Movie> top10ByRatingCoef(){
-        return movies.stream()
-                .sorted(new CoefficientComparator(maxRating).reversed())
+        return movies
+                .stream()
+                .sorted(Comparator
+                        .comparing(Movie::avgRating)
+                        .reversed()
+                        .thenComparing(Movie::getName))
                 .limit(10)
                 .collect(Collectors.toList());
     }
-}
-class CoefficientComparator implements Comparator<Movie> {
-    int maxRating;
-    public CoefficientComparator(int maxRating) {
-        this.maxRating=maxRating;
-    }
-
-    @Override
-    public int compare(Movie o1, Movie o2) {
-        if(Double.compare((o1.average()*o1.ratings.size()/maxRating),(o2.average()*o2.ratings.size()/maxRating))==0){
-            return o2.title.compareTo(o1.title);
+    public List<Movie> top10ByRatingCoef(){
+        int maxNumRatings = movies
+                .stream()
+                .mapToInt(x->x.ratings.size())
+                .max().orElse(0);
+        for(Movie m : movies){
+            m.setMaxRatings(maxNumRatings);
         }
-        return Double.compare((o1.average()*o1.ratings.size()/maxRating),(o2.average()*o2.ratings.size()/maxRating));
+
+        return movies
+                .stream()
+                .sorted(Comparator
+                        .comparing(Movie::ratingCoef)
+                        .reversed()
+                        .thenComparing(Movie::getName))
+                .limit(10)
+                .collect(Collectors.toList());
     }
 }
