@@ -1,6 +1,11 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class F1Test {
@@ -12,62 +17,86 @@ public class F1Test {
     }
 
 }
-class F1Race {
-    private List<Pilot> pilots;
+class Driver implements  Comparable<Driver>{
+    String name;
+    List<Integer> laps;
 
-    public F1Race() {
+    public Driver(String part, String line) {
+        this.name = part;
+        this.laps = new ArrayList<>();
+        String []parts = line.split(" ");
 
+        laps.add(parseLap(parts[1]));
+        laps.add(parseLap(parts[2]));
+        laps.add(parseLap(parts[3]));
     }
 
-    public void readResults(InputStream in) throws IOException {
-        BufferedReader reader = new BufferedReader((new InputStreamReader(in)));
-        pilots = reader.lines().map(x->new Pilot(x)).collect(Collectors.toList());
-        reader.close();
+    private Integer parseLap(String lap) {
+        int milis = 0;
+        String []parts = lap.split(":");
+        milis += Integer.parseInt(parts[0]) * 60 * 1000;
+        milis += Integer.parseInt(parts[1]) * 1000;
+        milis += Integer.parseInt(parts[2]);
+        return milis;
     }
-
-    public void printSorted(OutputStream out) {
-        PrintWriter writer = new PrintWriter(new PrintStream(out));
-        sort();
-
-        for (int i = 0; i < pilots.size(); i++) {
-            writer.println((i + 1) + ". " + pilots.get(i));
-        }
-        writer.close();
+    public int bestLap(){
+        return laps.stream().sorted().collect(Collectors.toList()).get(0);
     }
-
-    public void sort() {
-        pilots.sort(Comparator.naturalOrder());
-    }
-}
-class Pilot implements Comparable<Pilot>{
-    private String name;
-    private String time;
-
-    public Pilot(String input) {
-        String[] parts=input.split("\\s+");
-        name=parts[0];
-        int bestTime=Integer.MAX_VALUE, bestIndex=-1;
-        for(int i=1; i<parts.length; i++){
-            int temp=getTime(parts[i]);
-            if(temp<bestTime){
-                bestTime=temp;
-                bestIndex=i;
-            }
-        }
-        time=parts[bestIndex];
-    }
-    public int getTime(String a){
-        String[]parts=a.split(":");
-        return Integer.parseInt(parts[0])*60000+Integer.parseInt(parts[1])*1000+Integer.parseInt(parts[2]);
+    @Override
+    public int compareTo(Driver o) {
+        return Comparator.comparing(Driver::bestLap).compare(this, o);
     }
 
     @Override
     public String toString() {
-        return String.format("%-10s%10s", name, time);
+        return String.format("%-10s  %-10s\n", name, getStringLap());
     }
 
-    @Override
-    public int compareTo(Pilot o) {
-        return Integer.compare(getTime(time), o.getTime(o.time));
+    private String getStringLap() {
+        int best = bestLap();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append((int)best/1000/60).append(":");
+        best -= (best/1000/60) * 1000 * 60;
+
+        String sec = String.valueOf((int)best/1000);
+        sec = sec.length() < 2 ? "0" + sec : sec;
+        sb.append(sec).append(":");
+        best -= (best/1000) * 1000;
+
+        String mili = String.valueOf(best);
+        mili = mili.length() == 2 ? "0" + mili : mili;
+        mili = mili.length() == 1 ? "00" + mili : mili;
+        sb.append(mili);
+
+        return sb.toString();
+    }
+}
+class F1Race {
+    List<Driver> drivers;
+
+    public F1Race() {
+        this.drivers = new ArrayList<>();
+    }
+
+    public void readResults(InputStream in) {
+        Scanner scanner = new Scanner(in);
+
+        while (scanner.hasNextLine()){
+            String line = scanner.nextLine();
+            String []parts = line.split(" ");
+            drivers.add(new Driver(parts[0], line));
+        }
+    }
+
+
+    public void printSorted(PrintStream out) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        int i = 1;
+        for (Driver driver : drivers.stream().sorted().collect(Collectors.toList())){
+            writer.append(String.format("%d. ", i)).append(driver.toString());
+            i++;
+        }
+        writer.flush();
     }
 }

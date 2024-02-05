@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 public class FileSystemTest {
     public static void main(String[] args) {
         FileSystem fileSystem = new FileSystem();
@@ -50,67 +51,97 @@ public class FileSystemTest {
         scanner.close();
     }
 }
-class File{
+class File implements Comparable<File>{
+    char folder;
     String name;
     int size;
     LocalDateTime created;
-    public File(String name, int size, LocalDateTime created) {
+
+    public File(char folder, String name, int size, LocalDateTime created) {
+        this.folder = folder;
         this.name = name;
         this.size = size;
         this.created = created;
     }
-    public boolean isHidden(){
-        return name.charAt(0) == '.';
+
+    public String getName() {
+        return name;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%-10s %5dB %s", name, size, created);
+    }
+    @Override
+    public int compareTo(File o) {
+        return Comparator.comparing(File::getCreated)
+                .thenComparing(File::getName)
+                .thenComparing(File::getSize)
+                .compare(this, o);
+    }
+    public String toMonthDay() {
+        return String.format("%s-%d", created.getMonth(),
+                created.getDayOfMonth());
     }
 }
-class Folder{
-    char name;
-    List<File> files;
-    public Folder(char name) {
-        this.name = name;
-        files  = new ArrayList<>();
-    }
-    public void addFile(String name, int size, LocalDateTime createdAt){
-        files.add(new File(name, size, createdAt));
-    }
-    public int getSize(){
-        return files.stream().mapToInt(x -> x.size).sum();
-    }
-}
-class FileSystem {
-    List<Folder> folders;
+class FileSystem{
+    Map<Character, Set<File>> files;
+    static final Comparator<File> FILE_COMPARATOR = Comparator.comparing(File::getCreated)
+            .thenComparing(File::getName)
+            .thenComparing(File::getSize);
+
     public FileSystem() {
-        folders = new ArrayList<>();
+        this.files = new HashMap<>();
     }
+
     public void addFile(char folder, String name, int size, LocalDateTime createdAt){
-        for(Folder f : folders){
-            if(f.name == folder){
-                f.addFile(name, size, createdAt);
-                return;
-            }
-        }
-        Folder f  =new Folder(folder);
-        f.addFile(name, size, createdAt);
+        Set<File> computed = files.computeIfAbsent(folder, v -> new TreeSet<>(FILE_COMPARATOR));
+        computed.add(new File(folder, name, size, createdAt));
     }
     public List<File> findAllHiddenFilesWithSizeLessThen(int size){
-        return folders.stream().flatMap(f -> f.files
-                        .stream()
-                        .filter(File::isHidden)
-                        .filter(x -> x.size < size))
+        return files
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(i -> i.name.startsWith(".") && i.size < size)
                 .collect(Collectors.toList());
     }
     public int totalSizeOfFilesFromFolders(List<Character> folders){
-        int s = 0;
-        for(Character c : folders){
-            for(Folder f : this.folders){
-                if(f.name == c){
-                    s+=f.getSize();
-                }
-            }
-        }
-        return s;
+        return files
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(i -> folders.contains(i.folder))
+                .mapToInt(i -> i.size)
+                .sum();
     }
-    public Map<Integer, Set<File>> byYear(){
-        folders.stream().flatMap(x -> x.files.stream().collect(Collectors.groupingBy()))
+    public Map<Integer, Set<File>> byYear() {
+        return files
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(
+                        Collectors.groupingBy(
+                                file -> file.getCreated().getYear(),
+                                Collectors.toSet())
+                );
+    }
+    public Map<String, Long> sizeByMonthAndDay(){
+        return files
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(
+                        File::toMonthDay,
+                        Collectors.summingLong(File::getSize)
+                ));
     }
 }

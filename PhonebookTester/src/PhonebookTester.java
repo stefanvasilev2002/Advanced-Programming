@@ -1,225 +1,6 @@
-import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-
-class InvalidNameException extends Exception {
-    private String name;
-
-    public InvalidNameException() {
-    }
-}
-class InvalidNumberException extends Exception{
-
-}
-class MaximumSizeExceddedException extends Exception{
-
-}
-class Contact {
-    private String name;
-    private String[] numbers;
-
-    public Contact() throws InvalidNameException, InvalidNumberException, MaximumSizeExceddedException {
-        if(!extracted()){
-            return;
-        }
-        this.name = name;
-        this.numbers = numbers;
-    }
-    public Contact(String name, String[] nums) throws InvalidNameException, InvalidNumberException, MaximumSizeExceddedException {
-        if(!extracted()){
-            return;
-        }
-        this.name = name;
-        this.numbers = nums;
-    }
-    public Contact(String name, String num) throws InvalidNameException, InvalidNumberException, MaximumSizeExceddedException {
-        if(!extracted()){
-            return;
-        }
-        String []numTemp=new String[1];
-        numTemp[0]=num;
-        this.name = name;
-        this.numbers = numTemp;
-    }
-
-    public Contact(String nextLine) throws InvalidNameException, InvalidNumberException, MaximumSizeExceddedException {
-        if(!extracted()){
-            return;
-        }
-        this.name = nextLine;
-        this.numbers = numbers;
-    }
-
-    public Contact(String andrej, String randomLegitNumber, String randomLegitNumber1, String randomLegitNumber2) {
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public String[] getNumbers() {
-        //ToDo
-        String []temp= new String[numbers.length];
-        temp=Arrays.copyOf(numbers, numbers.length);
-        Arrays.sort(temp);
-        return temp;
-    }
-    public void addNumber(String phoneNumber)throws InvalidNameException, InvalidNumberException, MaximumSizeExceddedException{
-        if(!extracted()){
-            return;
-        }
-        int i=numbers.length+1;
-        String[] temp =new String[i];
-        temp=numbers;
-        temp[i]=phoneNumber;
-        numbers=temp;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb=new StringBuilder();
-        System.out.println(name);
-        sb.append(name).append("/n").append(numbers.length);
-        String[]sorted=getNumbers();
-        for(int i=0; i<numbers.length; i++){
-            sb.append("/n").append(sorted[i]);
-        }
-        return sb.toString();
-    }
-    public static Contact valueOf(String s){
-        //todo
-
-        return null;
-    }
-
-    private boolean extracted() throws InvalidNameException, InvalidNumberException, MaximumSizeExceddedException {
-        if (name.length() < 4 || name.length() > 10 || isAlphaNumerical(name)) {
-            throw new InvalidNameException();
-        }
-        for (int i = 0; i < numbers.length; i++) {
-            if (numbers[i].length() != 9 || starts(numbers[i])){
-                throw new InvalidNumberException();
-            }
-        }
-        if(numbers.length>5){
-            throw new MaximumSizeExceddedException();
-        }
-        return true;
-    }
-    public boolean isAlphaNumerical(String name) {
-        char[] niza = name.toCharArray();
-        boolean flag = true;
-        for (int i = 0; i < niza.length; i++) {
-            if (!Character.isLetter(niza[i]) && !Character.isDigit(niza[i])) {
-                flag = false;
-            }
-        }
-        return flag;
-    }
-
-    public boolean starts(String number) {
-        if (!number.startsWith("070") || !number.startsWith("071") || !number.startsWith("072") || !number.startsWith("075") || !number.startsWith("076") || !number.startsWith("077") || !number.startsWith("078")) {
-            return false;
-        }
-        return true;
-    }
-}
-
-class PhoneBook {
-    private Contact[] contacts;
-
-    public PhoneBook() {
-        contacts = new Contact[0];
-    }
-
-    public void addContact(Contact contact) throws MaximumSizeExceddedException, InvalidNameException {
-        if (contacts.length >= 250) {
-            throw new MaximumSizeExceddedException();
-        }
-        for (int i = 0; i < contacts.length; i++) {
-            if (contact.getName().compareTo(contacts[i].getName()) == 0) {
-                throw new InvalidNameException();
-            }
-        }
-        int i = contacts.length + 1;
-        Contact[] temp = new Contact[i];
-        temp = contacts;
-        temp[i] = contact;
-        contacts = temp;
-    }
-
-    public Contact getContactForName(String name) {
-        for (int i = 0; i < contacts.length; i++) {
-            if (name.compareTo(contacts[i].getName()) == 0) {
-                return contacts[i];
-            }
-        }
-        return null;
-    }
-    public int numberOfContacts(){
-        return contacts.length;
-    }
-    public Contact[]getContacts(){
-        Contact[]temp=new Contact[contacts.length];
-        temp=Arrays.copyOf(contacts, contacts.length);
-        Arrays.sort(temp);
-        return temp;
-    }
-    public boolean removeContact(String name){
-        boolean flag=false;
-        int found=-1;
-        for(int i=0; i<contacts.length; i++){
-            if(name.compareTo(contacts[i].getName())==0){
-                flag=true;
-                found=i;
-                break;
-            }
-        }
-        if(flag){
-            Contact []temp=new Contact[contacts.length-1];
-            for(int i=found+1; i<contacts.length; i++){
-                temp[i-1]=contacts[i];
-            }
-            contacts=temp;
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb=new StringBuilder();
-        for(int i=0; i<contacts.length; i++){
-            sb.append(contacts[i].getName()).append("/n");
-        }
-        return sb.toString();
-    }
-    public static boolean saveAsTextFile(PhoneBook phonebook,String path){
-        return false;
-    }
-    public static PhoneBook loadFromTextFile(String path){
-        return null;
-    }
-    public Contact[] getContactsForNumber(String number_prefix){
-        Contact[]contacts1=new Contact[0];
-        for(int i=0; i<contacts.length; i++){
-            String[]numbers=new String[contacts[i].getNumbers().length];
-            numbers=contacts[i].getNumbers();
-            for(int j=0; j<contacts[i].getNumbers().length; j++){
-                if(numbers[i].startsWith(number_prefix)){
-                    int z = contacts1.length + 1;
-                    Contact[] temp = new Contact[z];
-                    temp = contacts1;
-                    temp[i] = contacts[i];
-                    contacts1 = temp;
-                    break;
-                }
-            }
-        }
-        return contacts1;
-    }
-}
 
 public class PhonebookTester {
 
@@ -285,7 +66,7 @@ public class PhonebookTester {
             }
         }
         catch ( InvalidNameException e ) {
-            //todo System.out.println(e.name);
+            System.out.println(e.name);
             exception_thrown = true;
         }
         catch ( Exception e ) {}
@@ -334,7 +115,7 @@ public class PhonebookTester {
         }
         if ( ! exception_thrown ) System.out.println("Your Contact constructor doesn't throw a MaximumSizeExceddedException");
         Random rnd = new Random(5);
-        /*todo Contact contact = new Contact("Andrej",getRandomLegitNumber(rnd),getRandomLegitNumber(rnd),getRandomLegitNumber(rnd));
+        Contact contact = new Contact("Andrej",getRandomLegitNumber(rnd),getRandomLegitNumber(rnd),getRandomLegitNumber(rnd));
         System.out.println(contact.getName());
         System.out.println(Arrays.toString(contact.getNumbers()));
         System.out.println(contact.toString());
@@ -343,7 +124,7 @@ public class PhonebookTester {
         System.out.println(contact.toString());
         contact.addNumber(getRandomLegitNumber(rnd));
         System.out.println(Arrays.toString(contact.getNumbers()));
-        System.out.println(contact.toString());*/
+        System.out.println(contact.toString());
     }
 
     static String[] legit_prefixes = {"070","071","072","075","076","077","078"};
@@ -359,4 +140,20 @@ public class PhonebookTester {
             sb.append(rnd.nextInt(10));
         return sb.toString();
     }
+}
+class Contact{
+    String name;
+    List<String>numbers;
+
+    public Contact(String name, String randomLegitNumber, String randomLegitNumber1, String randomLegitNumber2) throws InvalidNameException {
+        if (name.length() < 4 || name.length() > 10){
+            throw new InvalidNameException();
+        }
+    }
+
+    public Contact(String name, String[] split) {
+    }
+}
+class InvalidNameException extends Exception{
+
 }
